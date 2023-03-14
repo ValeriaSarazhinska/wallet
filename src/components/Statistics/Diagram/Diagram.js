@@ -69,7 +69,7 @@ export const Diagram = () => {
     return () => {
       chart.destroy();
     };
-  }, [summary, theme, balanceText, data]);
+  }, [summary, theme, balanceText]);
   return (
     <DiagramWrapper>
       {data.length && (
