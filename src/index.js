@@ -14,7 +14,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <PersistGate loading={null} persistor={persistor}>
       <Provider store={store}>
         <BrowserRouter
-        // basename="Wallet"
+       basename="Wallet"
         >
           <App />
         </BrowserRouter>
