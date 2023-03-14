@@ -28,6 +28,8 @@ const plugins = (theme, balanceText) => {
   ];
 };
 
+ChartJS.register(ArcElement, Tooltip, Legend);
+
 export const Diagram = () => {
   const [data, setData] = useState([]);
   const [plugin, setPlugin] = useState([]);
@@ -61,14 +63,7 @@ export const Diagram = () => {
       ];
     };
     setData(doughnutData());
-    ChartJS.register(ArcElement, Tooltip, Legend);
-    const chart = new ChartJS('myChart', {
-      type: 'doughnut',
-      data: { datasets: data },
-    });
-    return () => {
-      chart.destroy();
-    };
+
   }, [summary, theme, balanceText]);
   return (
     <DiagramWrapper>
