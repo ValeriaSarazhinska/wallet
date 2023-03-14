@@ -19,6 +19,14 @@ import {
 } from 'redux/transactions/trans-operations';
 
 import {
+  selectIsEditModalOpen,
+  selectLanguage,
+} from 'redux/global/global-selectors';
+
+import { useTranslation } from 'react-i18next';
+import { categoryCheck, typeCheck } from './categoryCheck';
+
+import {
   StyledList,
   StyledItem,
   StyledSpan,
@@ -30,6 +38,7 @@ import {
 import { getDate } from 'helpers/getDate';
 import { capitalizeFirstLetter } from 'helpers/capitalize';
 import { LoaderDel } from './LoaderDelBtn';
+import { ModalEditTransaction } from 'components/ModalEditTransaction/ModalEditTransaction';
 
 export const TransactionsListMobile = () => {
   const dispatch = useDispatch();
@@ -38,7 +47,9 @@ export const TransactionsListMobile = () => {
   const categories = useSelector(selectCategories);
   const loading = useSelector(selectIsDeleting);
 
+  const { t } = useTranslation();
   const delId = useRef(null);
+  const lan = useSelector(selectLanguage);
 
   useEffect(() => {
     dispatch(fetchTransactions());
@@ -64,61 +75,85 @@ export const TransactionsListMobile = () => {
             const sum = parseFloat(positNum).toFixed(2);
 
             const getCategory = categories?.find(c => c.id === categoryId);
-            const categoryName = getCategory?.name;
+            const catN = getCategory?.name;
+            let categoryName = '';
+            if (lan === true) {
+              categoryName = catN;
+            }
+            if (lan === false) {
+              categoryName = categoryCheck(catN);
+            }
+            // потрібно замінити умову, щоб lan === 'ru'
+
+            let transType = '';
+            if (lan === true) {
+              transType = type;
+            }
+            if (lan === false) {
+              transType = typeCheck(type);
+            }
 
             return (
-              <StyledList key={id}>
-                <StyledItem type={type}>
-                  <StyledSpan>Date</StyledSpan>
-                  {date}
-                </StyledItem>
-                <StyledItem type={type}>
-                  <StyledSpan>Type</StyledSpan>
-                  {type}
-                </StyledItem>
-                <StyledItem type={type}>
-                  <StyledSpan>Category</StyledSpan>
-                  {categoryName}
-                </StyledItem>
-                <StyledItem type={type}>
-                  <StyledSpan>Comment</StyledSpan>
-                  {capitalizeFirstLetter(comment)}
-                </StyledItem>
-                <StyledItem type={type}>
-                  <StyledSpan>Sum</StyledSpan>
-                  <StyledSum type={type}>{sum}</StyledSum>
-                </StyledItem>
-                <StyledItem type={type}>
-                  <StyledDeleteBtn
-                    disabled={loading && id === delId.current}
-                    onClick={() => handleDeleteTransition(id, balance, amount)}
-                  >
-                    {loading && id === delId.current ? <LoaderDel /> : 'Delete'}
-                  </StyledDeleteBtn>
-                  <StyledEditBtn
-                    onClick={() =>
-                      handleEditTransition({
-                        id,
-                        transactionDate,
-                        type,
-                        categoryId,
-                        comment,
-                        amount,
-                      })
-                    }
-                  >
-                    <RiEdit2Line size={14} />
-                    Edit
-                  </StyledEditBtn>
-                </StyledItem>
-              </StyledList>
+              <>
+                <StyledList key={id}>
+                  <StyledItem type={type}>
+                    <StyledSpan>{t('transactionsTableDate')}</StyledSpan>
+                    {date}
+                  </StyledItem>
+                  <StyledItem type={type}>
+                    <StyledSpan>{t('transactionsTableType')}</StyledSpan>
+                    {transType}
+                  </StyledItem>
+                  <StyledItem type={type}>
+                    <StyledSpan>{t('transactionsTableCategory')}</StyledSpan>
+                    {categoryName}
+                  </StyledItem>
+                  <StyledItem type={type}>
+                    <StyledSpan>{t('transactionsTableComment')}</StyledSpan>
+                    {capitalizeFirstLetter(comment)}
+                  </StyledItem>
+                  <StyledItem type={type}>
+                    <StyledSpan>{t('transactionsTableAmount')}</StyledSpan>
+                    <StyledSum type={type}>{sum}</StyledSum>
+                  </StyledItem>
+                  <StyledItem type={type}>
+                    <StyledDeleteBtn
+                      disabled={loading && id === delId.current}
+                      onClick={() =>
+                        handleDeleteTransition(id, balance, amount)
+                      }
+                    >
+                      {loading && id === delId.current ? (
+                        <LoaderDel />
+                      ) : (
+                        t('transactionsTableDelete')
+                      )}
+                    </StyledDeleteBtn>
+                    <StyledEditBtn
+                      onClick={() =>
+                        handleEditTransition({
+                          id,
+                          transactionDate,
+                          type,
+                          categoryId,
+                          comment,
+                          amount,
+                        })
+                      }
+                    >
+                      <RiEdit2Line size={14} />
+                      {t('transactionsTableEdit')}
+                    </StyledEditBtn>
+                  </StyledItem>
+                </StyledList>
+                {selectIsEditModalOpen && <ModalEditTransaction />}
+              </>
             );
           }
         )
       ) : (
         <StyledNoTransactionDiv>
-          There aren't any transactions. Press the button and add your first
-          one!
+          <div>{t('transactionsTableNoTransactions')}</div>
         </StyledNoTransactionDiv>
       )}
     </>
